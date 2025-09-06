@@ -1,0 +1,7 @@
+selenium
+beautifulsoup4
+apache-airflow
+azure-storage-blob
+pendulum
+webdriver-manager
+dotenv
