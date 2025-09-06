@@ -1,41 +1,31 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 import time
 import os
 
-# Import ChromeDriverManager from webdriver_manager
-from webdriver_manager.chrome import ChromeDriverManager
+# Import GeckoDriverManager from webdriver_manager
+from webdriver_manager.firefox import GeckoDriverManager
 
 # Directories
 dirname = os.path.dirname(os.path.abspath(__file__))
 download_dir = os.path.join(dirname, 'zip-dl')
 
 def get_my_ip():
-    # Set up Chrome options
+    # Set up Firefox options
     options = Options()
-    prefs = {
-        "download.default_directory": download_dir,
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True
-    }
-    options.add_experimental_option("prefs", prefs)
-    options.add_argument("--headless")  # remove if you want to see the browser
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    options.set_preference("browser.download.folderList", 2)
+    options.set_preference("browser.download.dir", download_dir)
+    options.set_preference("browser.download.manager.showWhenStarting", False)
+    options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/zip, application/octet-stream")
+    options.add_argument("-headless")  # remove if you want to see the browser
 
-    # --- CHANGES START HERE ---
-    # Use ChromeDriverManager to automatically handle the driver path
-    # It will download the correct version of chromedriver if it's not present
-    # and return the path to it. This line replaces the platform check and hardcoded paths.
-    service = Service(ChromeDriverManager().install())
+    # Use GeckoDriverManager to automatically handle the driver path
+    service = Service(GeckoDriverManager().install())
     
-    # Set up Chrome driver with the automatically managed service
-    driver = webdriver.Chrome(service=service, options=options)
-    # --- CHANGES END HERE ---
+    # Set up Firefox driver with the automatically managed service
+    driver = webdriver.Firefox(service=service, options=options)
 
     url = 'https://whatismyipaddress.com/'
 
