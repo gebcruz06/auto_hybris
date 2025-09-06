@@ -1,39 +1,32 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 import time
 import os
 
-# Import ChromeDriverManager from webdriver_manager
-from webdriver_manager.chrome import ChromeDriverManager
+# Import GeckoDriverManager from webdriver_manager
+from webdriver_manager.firefox import GeckoDriverManager
 
 # Directories
 dirname = os.path.dirname(os.path.abspath(__file__))
 download_dir = os.path.join(dirname, 'zip-dl')
 
 def test_browser():
-    # Set up Chrome options
+    # Set up Firefox options
     options = Options()
-    prefs = {
-        "download.default_directory": download_dir,  # custom download dir
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True
-    }
-    options.add_experimental_option("prefs", prefs)
-    options.add_argument("--headless=new")  # use headless mode
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-dev-shm-usage")
-
-    # --- CHANGES START HERE ---
-    # Use ChromeDriverManager to automatically handle the driver path.
-    # It will download the correct chromedriver version if it's not present.
-    service = Service(ChromeDriverManager().install())
+    options.set_preference("browser.download.folderList", 2)
+    options.set_preference("browser.download.dir", download_dir)  # custom download dir
+    options.set_preference("browser.download.manager.showWhenStarting", False)
+    # This preference prevents Firefox from showing a download dialog for these file types
+    options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/zip, application/octet-stream")
     
-    # Use the service object to create the Chrome driver instance.
-    driver = webdriver.Chrome(service=service, options=options)
-    # --- CHANGES END HERE ---
+    options.add_argument("-headless")  # use headless mode
+  
+    # Use GeckoDriverManager to automatically handle the driver path.
+    service = Service(GeckoDriverManager().install())
+    
+    # Use the service object to create the Firefox driver instance.
+    driver = webdriver.Firefox(service=service, options=options)
 
     url = 'https://www.google.com'
     driver.get(url)
@@ -44,12 +37,11 @@ def test_browser():
     print(f"Script directory: {dirname}")
     print(f"Download directory: {download_dir}")
     
-    # We can no longer print the hardcoded driver_path, but we can confirm it's running
-    print(f"Driver version: {driver.capabilities['chrome']['chromedriverVersion']}")
+    # Print the browser version to confirm it's running
+    print(f"Browser version: {driver.capabilities['browserVersion']}")
     
     driver.quit()
     return True
-
 
 if __name__ == "__main__":
     test_browser()
