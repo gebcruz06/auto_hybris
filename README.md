@@ -1,5 +1,5 @@
 # Auto Hybris
-End-to-end data engineering solution fromSAP Commerce Cloud Backoffice to Power BI
+End-to-end data engineering solution from SAP Commerce Cloud Backoffice to Power BI
 
 <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/f015a244-d34e-4ba8-9f8e-ab173fd0b401" />
 
@@ -22,4 +22,5 @@ docker compose down
 
 rebuild:
 docker compose build
+
 
