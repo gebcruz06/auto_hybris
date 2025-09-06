@@ -3,12 +3,12 @@ import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
 from dotenv import load_dotenv
 
-# Import ChromeDriverManager from webdriver_manager
-from webdriver_manager.chrome import ChromeDriverManager
+# Import GeckoDriverManager from webdriver_manager
+from webdriver_manager.firefox import GeckoDriverManager
 
 # Load .env file
 load_dotenv()
@@ -22,26 +22,17 @@ download_dir = os.path.join(dirname, "zip-dl")
 
 def extract_hybris():
     options = Options()
-    options.add_argument("--headless=new")  # modern headless mode
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("-headless")  # modern headless mode
+    options.set_preference("browser.download.folderList", 2)
+    options.set_preference("browser.download.dir", download_dir)
+    options.set_preference("browser.download.manager.showWhenStarting", False)
+    options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/zip, application/octet-stream")
 
-    prefs = {
-        "download.default_directory": download_dir,
-        "download.prompt_for_download": False,
-        "safebrowsing.enabled": True
-    }
-    options.add_experimental_option("prefs", prefs)
-
-    # --- CHANGES START HERE ---
-    # Use ChromeDriverManager to automatically handle the driver path.
-    # It will download the correct chromedriver version if it's not present.
-    service = Service(ChromeDriverManager().install())
+    # Use GeckoDriverManager to automatically handle the driver path.
+    service = Service(GeckoDriverManager().install())
     
-    # Use the service object to create the Chrome driver instance.
-    driver = webdriver.Chrome(service=service, options=options)
-    # --- CHANGES END HERE ---
+    # Use the service object to create the Firefox driver instance.
+    driver = webdriver.Firefox(service=service, options=options)
 
     driver.get(ENDPOINT)
     time.sleep(5)
