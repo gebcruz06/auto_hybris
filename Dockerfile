@@ -4,66 +4,45 @@ FROM apache/airflow:2.9.3-python3.12
 # Switch to the root user to install system-level packages.
 USER root
 
-# Install a comprehensive list of system dependencies required by Google Chrome.
+# Install Firefox and Geckodriver dependencies
 RUN apt-get update -y && \
     apt-get install -y \
-    gnupg \
     wget \
-    libnss3-dev \
-    libgconf-2-4 \
-    libappindicator1 \
-    libxss1 \
-    libappindicator3-1 \
-    libasound2 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libc6 \
-    libcairo2 \
-    libcups2 \
-    libdbus-1-3 \
-    libexpat1 \
-    libfontconfig1 \
-    libgcc1 \
-    libgdk-pixbuf2.0-0 \
-    libglib2.0-0 \
+    gnupg \
+    curl \
+    bzip2 \
     libgtk-3-0 \
-    libnspr4 \
+    libdbus-glib-1-2 \
+    libxt6 \
+    libpci3 \
+    libasound2 \
+    libx11-xcb1 \
     libnss3 \
-    libx11-6 \
+    libxrandr2 \
+    libxss1 \
     libxcomposite1 \
     libxdamage1 \
-    libxext6 \
     libxfixes3 \
-    libxrandr2 \
-    libxi6 \
-    libsm6 \
-    libice6 \
-    libgstreamer-plugins-base1.0-0 \
-    libgstreamer1.0-0 \
-    libharfbuzz-icu0 \
-    libharfbuzz0b \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libpng16-16 \
-    libstdc++6 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
     libxkbcommon0 \
-    libxrender1 \
-    libxshmfence1 \
+    fonts-liberation \
     xz-utils \
-    zlib1g \
-    && \
-    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && \
-    sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
-    && \
-    apt-get update -y && \
-    apt-get install -y google-chrome-stable \
-    && \
-    apt-get clean && \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Firefox ESR (stable for Debian-based distros)
+RUN apt-get update -y && \
+    apt-get install -y firefox-esr && \
     rm -rf /var/lib/apt/lists/*
 
+# Install latest Geckodriver
+RUN GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep "tag_name" | cut -d '"' -f 4) && \
+    wget -q "https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" && \
+    tar -xzf "geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" -C /usr/local/bin && \
+    rm "geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz"
+
 # Correctly switch to the non-root 'airflow' user.
-# All subsequent commands will be run as this user.
 USER airflow
 
 # Copy your Python requirements file and install them.
